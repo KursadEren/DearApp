@@ -16,13 +16,16 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useNavigation } from '@react-navigation/native';
 
-export default function App() {
+export default function AddSubmitScreen() {
   const [image, setImage] = useState(null);
   const [date, setDate] = useState('');
   const [note, setNote] = useState('');
   const [notes, setNotes] = useState([]);
   const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const navigation = useNavigation();
 
   // AsyncStorage'dan verileri yükle
   useEffect(() => {
@@ -81,6 +84,9 @@ export default function App() {
       setImage(null);
       setDate('');
       setNote('');
+
+      // Home sayfasına geri dön ve güncellenmiş veriyi göster
+      navigation.navigate('Home');
     } catch (error) {
       Alert.alert('Hata', 'Not kaydedilemedi!');
       console.error(error);
@@ -148,21 +154,6 @@ export default function App() {
         <TouchableOpacity style={[styles.button, styles.clearButton]} onPress={clearNotes}>
           <Text style={styles.buttonText}>🗑️ Tüm Notları Temizle</Text>
         </TouchableOpacity>
-
-        <Text style={styles.title}>Kaydedilen Notlar:</Text>
-        <FlatList
-          data={notes}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.noteCard}>
-              {item.image && (
-                <Image source={{ uri: item.image }} style={styles.noteImage} />
-              )}
-              <Text style={styles.noteText}>📅 Tarih: {item.date}</Text>
-              <Text style={styles.noteText}>💕 Not: {item.note}</Text>
-            </View>
-          )}
-        />
       </ScrollView>
     </SafeAreaView>
   );
