@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Button,
+  StatusBar,
   Image,
   View,
   TextInput,
@@ -10,6 +10,8 @@ import {
   Alert,
   Text,
   TouchableOpacity,
+  SafeAreaView,
+  Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -107,8 +109,9 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff0f6" />
+      <ScrollView contentContainerStyle={styles.container}>
         <TouchableOpacity style={styles.button} onPress={pickImage}>
           <Text style={styles.buttonText}>📷 Resim Seç</Text>
         </TouchableOpacity>
@@ -161,15 +164,18 @@ export default function App() {
           )}
         />
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
+    backgroundColor: '#fff0f6', // Safe area background
+  },
+  container: {
+    flexGrow: 1,
     padding: 20,
-    backgroundColor: '#fff0f6',
   },
   image: {
     width: 200,
