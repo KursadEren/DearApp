@@ -1,11 +1,14 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, Image, FlatList, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, Image, FlatList, StyleSheet, SafeAreaView, Dimensions, Modal, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import Svg, { Path } from 'react-native-svg';
 
 export default function HomeScreen() {
   const [groupedNotes, setGroupedNotes] = useState([]);
-  const screenWidth = Dimensions.get('window').width; // Ekran genişliği
+  const [selectedNote, setSelectedNote] = useState(null); // Selected note
+  const [modalVisible, setModalVisible] = useState(false); // Modal visibility
+  const screenWidth = Dimensions.get('window').width;
 
   const loadNotes = async () => {
     try {
@@ -13,24 +16,21 @@ export default function HomeScreen() {
       if (storedNotes) {
         const parsedNotes = JSON.parse(storedNotes);
 
-        // Tarih bilgisini ayrıştırma ve işlem yapma
         const updatedNotes = parsedNotes.map((note) => {
-          const dateObject = new Date(note.date); // Date formatına çevir
-          const formattedDate = dateObject.toISOString(); // ISO formatı ile kesin sıralama
-          return { ...note, date: formattedDate }; // Güncellenmiş tarih formatını ekle
+          const dateObject = new Date(note.date); 
+          const formattedDate = dateObject.toISOString();
+          return { ...note, date: formattedDate };
         });
 
-        // Tarihe göre sıralama (en eski en üstte olacak şekilde)
         const sortedNotes = updatedNotes.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-        // Notları tarihe göre grupla
         const grouped = sortedNotes.reduce((acc, note) => {
           const dateObject = new Date(note.date);
           const formattedDate = dateObject.toLocaleDateString('tr-TR', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
-          }); // Örneğin: "16 Kasım 2024"
+          });
 
           if (!acc[formattedDate]) {
             acc[formattedDate] = [];
@@ -42,7 +42,7 @@ export default function HomeScreen() {
         setGroupedNotes(Object.entries(grouped));
       }
     } catch (error) {
-      console.error('Notlar yüklenirken hata oluştu:', error);
+      console.error('Error loading notes:', error);
     }
   };
 
@@ -52,11 +52,21 @@ export default function HomeScreen() {
     }, [])
   );
 
+  const openModal = (note) => {
+    setSelectedNote(note);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedNote(null);
+  };
+
   const renderNoteItem = ({ item }) => (
     <View style={[styles.noteCard, { width: screenWidth - 20 }]}>
-      <Image source={{ uri: item.image }} style={styles.noteImage} />
-      
-      <Text style={styles.noteText}>{item.note}</Text>
+      <TouchableOpacity onPress={() => openModal(item)}>
+        <Image source={{ uri: item.image }} style={styles.noteImage} />
+      </TouchableOpacity>
     </View>
   );
 
@@ -78,6 +88,45 @@ export default function HomeScreen() {
         )}
         showsVerticalScrollIndicator={false}
       />
+
+      {/* Heart-Shaped Modal */}
+      {selectedNote && (
+        <Modal
+          visible={modalVisible}
+          animationType="fade"
+          transparent={true}
+          onRequestClose={closeModal}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.heartContainer}>
+              {/* Heart Shape SVG */}
+              <Svg width="100%" height="100%" viewBox="0 0 1000 800" style={styles.heartBackground}>
+                <Path
+                  d="M500 160
+                     C640 -80, 1000 240, 500 680
+                     C0 240, 360 -80, 500 160
+                     Z"
+                  fill="#fff"
+                />
+              </Svg>
+              <View style={styles.heartContent}>
+                <Text style={styles.modalDate}>
+                  {new Date(selectedNote.date).toLocaleDateString('tr-TR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </Text>
+                <Image source={{ uri: selectedNote.image }} style={styles.modalImage} />
+                <Text style={styles.modalNoteText}>{selectedNote.note}</Text>
+                <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+                  <Text style={styles.closeButtonText}>Kapat</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 }
@@ -85,60 +134,85 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff', // Arka plan sade beyaz
-    padding: 10,
+    backgroundColor: '#f9f9f9',
+    padding: 15,
   },
   dateHeader: {
-    fontSize: 18, // Tarih başlığını büyüttüm
-    fontWeight: 'bold', // Daha belirgin tarih başlığı
-    color: '#FF69B4', // Pembe tonlarında estetik bir renk
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FF69B4',
     marginVertical: 15,
-    marginLeft: 10,
-    textShadowColor: 'rgba(0, 0, 0, 0.2)', // Hafif gölge efekti
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
+    marginLeft: 15,
   },
   noteCard: {
-    alignItems: 'center',
-    borderRadius: 10, // Köşeler yuvarlatıldı
+    backgroundColor: '#fff',
+    borderRadius: 15,
     overflow: 'hidden',
+    elevation: 5,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
     alignSelf: 'center',
+    paddingBottom: 10,
   },
   noteImage: {
-    width: '90%', // Kart genişliğinin %90'ı
-    height: 250,
-    marginTop: 10,
-    borderRadius: 10, // Görüntü köşeleri yuvarlatıldı
-    shadowColor: '#000', // Görselde gölgelendirme
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  badge: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: '#FF69B4',
-    paddingVertical: 3,
-    paddingHorizontal: 8,
+    width: '100%',
+    height: 200,
     borderRadius: 15,
-    elevation: 2,
   },
-  badgeText: {
-    color: '#fff',
-    fontSize: 12,
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  heartContainer: {
+    width: 500,
+    height: 500,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  heartBackground: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  heartContent: {
+    alignItems: 'center',
+    padding: 30,
+    width: '70%',
+    position: 'absolute',
+    top: '10%', // Positioning the content slightly down within the heart
+  },
+  modalDate: {
+    fontSize: 18,
+    color: '#FF69B4',
     fontWeight: 'bold',
+    marginBottom: 10,
   },
-  noteText: {
-    fontSize: 16, // Yazı boyutunu büyüttüm
-    color: '#333', // Daha belirgin yazı rengi
+  modalImage: {
+    width: '100%',
+    height: 180,
+    borderRadius: 10,
+    marginBottom: 15,
+  },
+  modalNoteText: {
+    fontSize: 16,
+    color: '#555',
     textAlign: 'center',
-    marginVertical: 10,
-    paddingHorizontal: 15,
-    fontFamily: 'sans-serif-medium', // Modern yazı tipi
-    textShadowColor: 'rgba(0, 0, 0, 0.1)', // Hafif gölge
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 1,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  closeButton: {
+    backgroundColor: '#FF69B4',
+    padding: 12,
+    borderRadius: 25,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
