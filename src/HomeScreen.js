@@ -11,10 +11,7 @@ export default function HomeScreen() {
       const storedNotes = await AsyncStorage.getItem('notes');
       if (storedNotes) {
         const parsedNotes = JSON.parse(storedNotes);
-        // Tarihe göre sıralama (en yeni en üstte olacak şekilde)
-        const sortedNotes = parsedNotes.sort(
-          (a, b) => new Date(b.date) - new Date(a.date)
-        );
+        const sortedNotes = parsedNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
         setNotes(sortedNotes);
       }
     } catch (error) {
@@ -32,7 +29,11 @@ export default function HomeScreen() {
     <View style={styles.noteCard}>
       <Image source={{ uri: item.image }} style={styles.noteImage} />
       <Text style={styles.noteText}>{item.note}</Text>
-      <Text style={styles.dateText}>{item.date}</Text>
+      <View style={styles.dateContainer}>
+        <View style={styles.line} />
+        <Text style={styles.dateText}>{item.date}</Text>
+        <View style={styles.line} />
+      </View>
     </View>
   );
 
@@ -51,39 +52,42 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff0f6',
     padding: 20,
   },
   noteCard: {
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 15,
+    padding: 10,
     marginVertical: 10,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    alignItems: 'center',
+    width: '100%',
   },
   noteImage: {
-    width: '100%',
+    width: '90%',
     height: 150,
-    borderRadius: 5,
-    marginBottom: 10,
+    borderRadius: 10,
+    marginBottom: 8,
   },
   noteText: {
-    fontSize: 16,
-    color: '#555',
+    fontSize: 18, // Daha büyük font boyutu
+    color: '#333',
+    fontWeight: '600', // Daha belirgin yazı stili
     textAlign: 'center',
-    marginBottom: 5,
+    marginVertical: 8,
+  },
+  dateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#ccc', // Daha açık çizgi rengi
+    marginHorizontal: 10,
   },
   dateText: {
     fontSize: 14,
-    color: '#888',
+    color: '#777', // Daha yumuşak tarih rengi
+    fontStyle: 'italic', // Eğik yazı stili
     textAlign: 'center',
-    marginTop: 5,
-    borderTopWidth: 1,
-    borderTopColor: '#ddd',
-    paddingTop: 5,
   },
 });

@@ -127,7 +127,7 @@ export default function AddSubmitScreen() {
           style={styles.button}
           onPress={() => setShowDatePicker(true)}
         >
-          <Text style={styles.buttonText}>📅 Tarih Seç</Text>
+          <Text style={styles.buttonText}>Tarih Seç 📅</Text>
         </TouchableOpacity>
         {showDatePicker && (
           <DateTimePicker
@@ -148,11 +148,11 @@ export default function AddSubmitScreen() {
         />
 
         <TouchableOpacity style={styles.button} onPress={addNote}>
-          <Text style={styles.buttonText}>💌 Not Ekle</Text>
+          <Text style={styles.buttonText}>Not Ekle 💌</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={[styles.button, styles.clearButton]} onPress={clearNotes}>
-          <Text style={styles.buttonText}>🗑️ Tüm Notları Temizle</Text>
+          <Text style={styles.buttonText}>Tüm Notları Temizle 🗑️</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
