@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, Image, FlatList, StyleSheet, SafeAreaView, Dimensions, Modal, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { View, Text, Image, FlatList, StyleSheet, SafeAreaView, Dimensions, Modal, TouchableOpacity, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
@@ -9,6 +9,7 @@ export default function HomeScreen() {
   const [selectedNote, setSelectedNote] = useState(null); // Selected note
   const [modalVisible, setModalVisible] = useState(false); // Modal visibility
   const screenWidth = Dimensions.get('window').width;
+  const scaleAnim = useRef(new Animated.Value(0)).current; // Animated scale for the heart modal
 
   const loadNotes = async () => {
     try {
@@ -55,6 +56,13 @@ export default function HomeScreen() {
   const openModal = (note) => {
     setSelectedNote(note);
     setModalVisible(true);
+    // Reset scale to 0, then animate to 1
+    scaleAnim.setValue(0);
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      friction: 5,
+    }).start();
   };
 
   const closeModal = () => {
@@ -93,12 +101,12 @@ export default function HomeScreen() {
       {selectedNote && (
         <Modal
           visible={modalVisible}
-          animationType="fade"
+          animationType="none" // Use custom animation
           transparent={true}
           onRequestClose={closeModal}
         >
           <View style={styles.modalOverlay}>
-            <View style={styles.heartContainer}>
+            <Animated.View style={[styles.heartContainer, { transform: [{ scale: scaleAnim }] }]}>
               {/* Heart Shape SVG */}
               <Svg width="100%" height="100%" viewBox="0 0 1000 800" style={styles.heartBackground}>
                 <Path
@@ -123,7 +131,7 @@ export default function HomeScreen() {
                   <Text style={styles.closeButtonText}>Kapat</Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </Animated.View>
           </View>
         </Modal>
       )}
