@@ -55,15 +55,7 @@ export default function HomeScreen() {
   const renderNoteItem = ({ item }) => (
     <View style={[styles.noteCard, { width: screenWidth - 20 }]}>
       <Image source={{ uri: item.image }} style={styles.noteImage} />
-      <View style={styles.badge}>
-        <Text style={styles.badgeText}>
-          {new Date(item.date).toLocaleDateString('tr-TR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </Text>
-      </View>
+      
       <Text style={styles.noteText}>{item.note}</Text>
     </View>
   );
@@ -93,29 +85,35 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff0f6',
+    backgroundColor: '#ffffff', // Arka plan sade beyaz
     padding: 10,
   },
   dateHeader: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FF69B4',
-    marginVertical: 10,
+    fontSize: 18, // Tarih başlığını büyüttüm
+    fontWeight: 'bold', // Daha belirgin tarih başlığı
+    color: '#FF69B4', // Pembe tonlarında estetik bir renk
+    marginVertical: 15,
     marginLeft: 10,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)', // Hafif gölge efekti
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   noteCard: {
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 10,
+    borderRadius: 10, // Köşeler yuvarlatıldı
     overflow: 'hidden',
-    elevation: 3,
     marginBottom: 20,
     alignSelf: 'center',
   },
   noteImage: {
-    width: '100%',
+    width: '90%', // Kart genişliğinin %90'ı
     height: 250,
-    borderRadius: 10,
+    marginTop: 10,
+    borderRadius: 10, // Görüntü köşeleri yuvarlatıldı
+    shadowColor: '#000', // Görselde gölgelendirme
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   badge: {
     position: 'absolute',
@@ -133,10 +131,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   noteText: {
-    fontSize: 16,
-    color: '#555',
+    fontSize: 16, // Yazı boyutunu büyüttüm
+    color: '#333', // Daha belirgin yazı rengi
     textAlign: 'center',
     marginVertical: 10,
     paddingHorizontal: 15,
+    fontFamily: 'sans-serif-medium', // Modern yazı tipi
+    textShadowColor: 'rgba(0, 0, 0, 0.1)', // Hafif gölge
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 1,
   },
 });

@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons'; // İkonlar için kütüphane
 import HomeScreen from './src/HomeScreen';
 import AddSubmit from './src/AddSubmit';
+import SettingsScreen from './src/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -20,7 +21,9 @@ function MyTabs() {
             iconName = focused ? 'home' : 'home-outline'; // Seçili ve seçili olmayan ikonlar
           } else if (route.name === 'Not Ekle') {
             iconName = focused ? 'add-circle' : 'add-circle-outline';
-          }
+          } else if (route.name === 'Ayarlar') {
+            iconName = focused ? 'settings' : 'settings-outline';
+          } 
 
           // İkonu döndür
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -33,6 +36,7 @@ function MyTabs() {
     >
       <Tab.Screen name="Ana Sayfa" component={HomeScreen} />
       <Tab.Screen name="Not Ekle" component={AddSubmit} />
+      <Tab.Screen name="Ayarlar" component={SettingsScreen} />
     </Tab.Navigator>
   );
 }
