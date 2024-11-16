@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { View, Text, Image, FlatList, StyleSheet, SafeAreaView, Dimensions, Modal, TouchableOpacity, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
@@ -108,11 +108,11 @@ export default function HomeScreen() {
           <View style={styles.modalOverlay}>
             <Animated.View style={[styles.heartContainer, { transform: [{ scale: scaleAnim }] }]}>
               {/* Heart Shape SVG */}
-              <Svg width="100%" height="100%" viewBox="0 0 1000 800" style={styles.heartBackground}>
+              <Svg width="100%" height="100%" viewBox="0 0 1400 1200" style={styles.heartBackground}>
                 <Path
-                  d="M500 160
-                     C640 -80, 1000 240, 500 680
-                     C0 240, 360 -80, 500 160
+                  d="M700 300
+                     C900 -100, 1400 400, 700 1100
+                     C0 400, 500 -100, 700 300
                      Z"
                   fill="#fff"
                 />
@@ -177,8 +177,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
   heartContainer: {
-    width: 500,
-    height: 500,
+    width: 600,
+    height: 600,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     padding: 30,
     width: '70%',
     position: 'absolute',
-    top: '10%', // Positioning the content slightly down within the heart
+    top: '25%', // Positioning content lower to center within heart
   },
   modalDate: {
     fontSize: 18,
@@ -202,8 +202,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   modalImage: {
-    width: '100%',
-    height: 180,
+    width: '60%', // Smaller image to improve centering
+    height: 120,
     borderRadius: 10,
     marginBottom: 15,
   },
