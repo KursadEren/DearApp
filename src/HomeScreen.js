@@ -7,9 +7,10 @@ import Svg, { Path } from 'react-native-svg';
 export default function HomeScreen() {
   const [groupedNotes, setGroupedNotes] = useState([]);
   const [selectedNote, setSelectedNote] = useState(null); // Selected note
-  const [modalVisible, setModalVisible] = useState(false); // Modal visibility
+  const [modalVisible, setModalVisible] = useState(false); // Modal visibility for details
+  const [heartVisible, setHeartVisible] = useState(false); // Modal visibility for animated heart
   const screenWidth = Dimensions.get('window').width;
-  const scaleAnim = useRef(new Animated.Value(0)).current; // Animated scale for the heart modal
+  const scaleAnim = useRef(new Animated.Value(0)).current; // Animation for the heart expansion
 
   const loadNotes = async () => {
     try {
@@ -56,7 +57,15 @@ export default function HomeScreen() {
   const openModal = (note) => {
     setSelectedNote(note);
     setModalVisible(true);
-    // Reset scale to 0, then animate to 1
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedNote(null);
+  };
+
+  const showHeartAnimation = () => {
+    setHeartVisible(true);
     scaleAnim.setValue(0);
     Animated.spring(scaleAnim, {
       toValue: 1,
@@ -65,7 +74,8 @@ export default function HomeScreen() {
     }).start();
   };
 
-  const closeModal = () => {
+  const closeHeartAnimation = () => {
+    setHeartVisible(false);
     setModalVisible(false);
     setSelectedNote(null);
   };
@@ -97,17 +107,45 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       />
 
-      {/* Heart-Shaped Modal */}
+      {/* Detail Modal */}
       {selectedNote && (
         <Modal
           visible={modalVisible}
-          animationType="none" // Use custom animation
+          animationType="none"
           transparent={true}
           onRequestClose={closeModal}
         >
           <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalDate}>
+                {new Date(selectedNote.date).toLocaleDateString('tr-TR', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </Text>
+              <Image source={{ uri: selectedNote.image }} style={styles.modalImage} />
+              <TouchableOpacity onPress={showHeartAnimation} style={styles.showNoteButton}>
+                <Text style={styles.showNoteButtonText}>Show Note</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
+
+      {/* Heart-Shaped Note Modal */}
+      {heartVisible && (
+        <Modal
+          visible={heartVisible}
+          animationType="none"
+          transparent={true}
+          onRequestClose={closeHeartAnimation}
+        >
+          <View style={styles.modalOverlay}>
             <Animated.View style={[styles.heartContainer, { transform: [{ scale: scaleAnim }] }]}>
-              {/* Heart Shape SVG */}
               <Svg width="100%" height="100%" viewBox="0 0 1400 1200" style={styles.heartBackground}>
                 <Path
                   d="M700 300
@@ -118,17 +156,9 @@ export default function HomeScreen() {
                 />
               </Svg>
               <View style={styles.heartContent}>
-                <Text style={styles.modalDate}>
-                  {new Date(selectedNote.date).toLocaleDateString('tr-TR', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </Text>
-                <Image source={{ uri: selectedNote.image }} style={styles.modalImage} />
-                <Text style={styles.modalNoteText}>{selectedNote.note}</Text>
-                <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
-                  <Text style={styles.closeButtonText}>Kapat</Text>
+                <Text style={styles.modalNoteText}>{selectedNote?.note}</Text>
+                <TouchableOpacity onPress={closeHeartAnimation} style={styles.closeButton}>
+                  <Text style={styles.closeButtonText}>Close</Text>
                 </TouchableOpacity>
               </View>
             </Animated.View>
@@ -176,6 +206,46 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 15,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalDate: {
+    fontSize: 18,
+    color: '#FF69B4',
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalImage: {
+    width: '100%',
+    height: 180,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  showNoteButton: {
+    backgroundColor: '#FF69B4',
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    marginTop: 10,
+  },
+  showNoteButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  closeButton: {
+    backgroundColor: '#FF69B4',
+    padding: 10,
+    borderRadius: 25,
+    marginTop: 10,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
   heartContainer: {
     width: 600,
     height: 600,
@@ -193,34 +263,13 @@ const styles = StyleSheet.create({
     padding: 30,
     width: '70%',
     position: 'absolute',
-    top: '25%', // Positioning content lower to center within heart
-  },
-  modalDate: {
-    fontSize: 18,
-    color: '#FF69B4',
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  modalImage: {
-    width: '60%', // Smaller image to improve centering
-    height: 120,
-    borderRadius: 10,
-    marginBottom: 15,
+    top: '25%', // Center content inside heart
   },
   modalNoteText: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#555',
     textAlign: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-  closeButton: {
-    backgroundColor: '#FF69B4',
-    padding: 12,
-    borderRadius: 25,
-  },
-  closeButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    paddingHorizontal: 15,
   },
 });
+
